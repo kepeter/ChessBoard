@@ -1,0 +1,13 @@
+BasedOnStyle: Google
+Language: Cpp
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<Q.*>$'
+    Priority: 2
+    CaseSensitive: true
+  - Regex: '^<[a-z_]+>$'
+    Priority: 1
+    CaseSensitive: true
+  - Regex: '^".*"$'
+    Priority: 3

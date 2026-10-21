@@ -1,0 +1,55 @@
+name: Build, Package, and Release
+
+on:
+    push:
+        branches: [main]
+
+permissions:
+    contents: write
+
+jobs:
+    release-linux:
+        runs-on: ubuntu-24.04
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Install System Dependencies
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y build-essential cmake rpm dpkg-dev
+                  sudo apt-get install -y qt6-base-dev libqt6multimedia6-dev libgl1-mesa-dev
+
+            - name: Configure CMake
+              run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+
+            - name: Build Application
+              run: cmake --build build --config Release
+
+            - name: Generate Packages (RPM & DEB)
+              run: |
+                  cd build
+                  cpack
+
+            - name: Generate Dynamic Version Tag
+              id: vars
+              run: |
+                  echo "tag=v$(date +'%Y.%m.%d')-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+            - name: Create GitHub Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  tag_name: ${{ steps.vars.outputs.tag }}
+                  name: Release ${{ steps.vars.outputs.tag }}
+                  body: |
+                      Automated build from the latest push/merge to the main branch.
+
+                      ### Files Included:
+                      * **DEB Package:** Installable on Debian, Ubuntu, Linux Mint.
+                      * **RPM Package:** Installable on Fedora, RHEL, CentOS.
+                  draft: false
+                  prerelease: false
+                  files: |
+                      dist/*.deb
+                      dist/*.rpm

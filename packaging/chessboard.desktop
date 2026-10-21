@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=ChessBoard
+Comment=A desktop chess app
+Exec=ChessBoard
+Icon=chessboard
+Terminal=false
+Categories=Game;BoardGame;
